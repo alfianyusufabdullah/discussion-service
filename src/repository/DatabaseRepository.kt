@@ -34,6 +34,7 @@ class DatabaseRepository {
                             id = row[DiscussionTable.id],
                             parentId = row[DiscussionTable.parent_id],
                             title = row[DiscussionTable.title],
+                            name = row[DiscussionTable.name],
                             comment = row[DiscussionTable.comment],
                             createdAt = row[DiscussionTable.created_at],
                             reply = DiscussionTable.select { DiscussionTable.parent_id eq row[DiscussionTable.id] }
