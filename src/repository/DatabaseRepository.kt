@@ -12,7 +12,7 @@ class DatabaseRepository {
     suspend fun findAllDiscussionWith(parentId: Int?): MutableList<Discussions> {
         val discussions = mutableListOf<Discussions>()
         dbQuery {
-            if (parentId == null){
+            if (parentId == null) {
                 DiscussionTable.selectAll().forEach { row ->
                     discussions.add(
                         Discussions(
@@ -22,7 +22,8 @@ class DatabaseRepository {
                             name = row[DiscussionTable.name],
                             comment = row[DiscussionTable.comment],
                             createdAt = row[DiscussionTable.created_at],
-                            reply = DiscussionTable.select { DiscussionTable.parent_id eq row[DiscussionTable.id] }.count()
+                            reply = DiscussionTable.select { DiscussionTable.parent_id eq row[DiscussionTable.id] }
+                                .count()
                         )
                     )
                 }
@@ -35,7 +36,8 @@ class DatabaseRepository {
                             title = row[DiscussionTable.title],
                             comment = row[DiscussionTable.comment],
                             createdAt = row[DiscussionTable.created_at],
-                            reply = DiscussionTable.select { DiscussionTable.parent_id eq row[DiscussionTable.id] }.count()
+                            reply = DiscussionTable.select { DiscussionTable.parent_id eq row[DiscussionTable.id] }
+                                .count()
                         )
                     )
                 }
