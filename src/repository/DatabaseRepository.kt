@@ -12,16 +12,18 @@ class DatabaseRepository {
     suspend fun findAllDiscussionWith(parentId: Int?): MutableList<Discussions> {
         val discussions = mutableListOf<Discussions>()
         dbQuery {
-            if (parentId == null){
+            if (parentId == null) {
                 DiscussionTable.selectAll().forEach { row ->
                     discussions.add(
                         Discussions(
                             id = row[DiscussionTable.id],
                             parentId = row[DiscussionTable.parent_id],
+                            title = row[DiscussionTable.title],
                             name = row[DiscussionTable.name],
                             comment = row[DiscussionTable.comment],
                             createdAt = row[DiscussionTable.created_at],
-                            reply = DiscussionTable.select { DiscussionTable.parent_id eq row[DiscussionTable.id] }.count()
+                            reply = DiscussionTable.select { DiscussionTable.parent_id eq row[DiscussionTable.id] }
+                                .count()
                         )
                     )
                 }
@@ -31,10 +33,11 @@ class DatabaseRepository {
                         Discussions(
                             id = row[DiscussionTable.id],
                             parentId = row[DiscussionTable.parent_id],
+                            title = row[DiscussionTable.title],
                             comment = row[DiscussionTable.comment],
-                            name = row[DiscussionTable.name],
                             createdAt = row[DiscussionTable.created_at],
-                            reply = DiscussionTable.select { DiscussionTable.parent_id eq row[DiscussionTable.id] }.count()
+                            reply = DiscussionTable.select { DiscussionTable.parent_id eq row[DiscussionTable.id] }
+                                .count()
                         )
                     )
                 }
@@ -70,6 +73,7 @@ class DatabaseRepository {
                     it[parent_id] = 0
                     it[comment] = discussions.comment
                     it[name] = discussions.name
+                    it[title] = discussions.title
                     it[created_at] = System.currentTimeMillis()
                 }
                 true

@@ -28,10 +28,11 @@ fun Route.widget(databaseRepository: DatabaseRepository) {
             val comment = params["comment"] ?: "undefined"
             val parentId = params["parentId"]?.toInt() ?: 0
             val name = params["name"] ?: "Alien"
+            val title = params["title"] ?: "QnA"
 
             val result = when (type) {
                 "discussion" -> {
-                    val discussions = Discussions(comment = comment, name = name)
+                    val discussions = Discussions(comment = comment, name = name, title = title)
                     databaseRepository.publishNewDiscussion(discussions)
                 }
                 "comment" -> {
