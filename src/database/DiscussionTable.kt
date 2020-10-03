@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.Table
 object DiscussionTable : Table() {
     val id = integer("id").primaryKey().autoIncrement()
     val parent_id = integer("parent_id")
-    val title = varchar("title", 255)
+    val title = varchar("title", 255).nullable()
     val name = varchar("name", 255)
     val comment = varchar("comment", 255)
     val created_at = long("created_at")
