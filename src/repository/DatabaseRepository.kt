@@ -9,38 +9,22 @@ import org.jetbrains.exposed.sql.*
 
 class DatabaseRepository {
 
-    suspend fun findAllDiscussionWith(parentId: Int?): MutableList<Discussions> {
+    suspend fun findAllDiscussionWith(parentId: String?): MutableList<Discussions> {
         val discussions = mutableListOf<Discussions>()
         dbQuery {
-            if (parentId == null) {
-                DiscussionTable.selectAll().forEach { row ->
-                    discussions.add(
-                        Discussions(
-                            id = row[DiscussionTable.id],
-                            parentId = row[DiscussionTable.parent_id],
-                            title = row[DiscussionTable.title],
-                            name = row[DiscussionTable.name],
-                            comment = row[DiscussionTable.comment],
-                            createdAt = row[DiscussionTable.created_at],
-                            reply = DiscussionTable.select { DiscussionTable.parent_id eq row[DiscussionTable.id] }
-                                .count()
-                        )
+            DiscussionTable.select { DiscussionTable.parent_id eq (parentId ?: "-") }.forEach { row ->
+                discussions.add(
+                    Discussions(
+                        id = row[DiscussionTable.id],
+                        parentId = row[DiscussionTable.parent_id],
+                        title = row[DiscussionTable.title],
+                        name = row[DiscussionTable.name],
+                        comment = row[DiscussionTable.comment],
+                        createdAt = row[DiscussionTable.created_at],
+                        reply = DiscussionTable.select { DiscussionTable.parent_id eq row[DiscussionTable.id] }
+                            .count()
                     )
-                }
-            } else {
-                DiscussionTable.select { DiscussionTable.parent_id eq parentId }.forEach { row ->
-                    discussions.add(
-                        Discussions(
-                            id = row[DiscussionTable.id],
-                            parentId = row[DiscussionTable.parent_id],
-                            title = row[DiscussionTable.title],
-                            comment = row[DiscussionTable.comment],
-                            createdAt = row[DiscussionTable.created_at],
-                            reply = DiscussionTable.select { DiscussionTable.parent_id eq row[DiscussionTable.id] }
-                                .count()
-                        )
-                    )
-                }
+                )
             }
         }
         return discussions
@@ -49,11 +33,13 @@ class DatabaseRepository {
     suspend fun publishNewComment(discussions: Discussions): Boolean {
         return dbQuery {
             try {
+                val createdAt = discussions.createdAt
                 DiscussionTable.insert {
+                    it[id] = "${discussions.name.replace(" ", "").toLowerCase()}-${createdAt}"
                     it[parent_id] = discussions.parentId
                     it[comment] = discussions.comment
                     it[name] = discussions.name
-                    it[created_at] = System.currentTimeMillis()
+                    it[created_at] = createdAt
                 }
                 true
             } catch (e: JdbcSQLIntegrityConstraintViolationException) {
@@ -69,12 +55,14 @@ class DatabaseRepository {
     suspend fun publishNewDiscussion(discussions: Discussions): Boolean {
         return dbQuery {
             try {
+                val createdAt = discussions.createdAt
                 DiscussionTable.insert {
-                    it[parent_id] = 0
+                    it[id] = "${discussions.name.replace(" ", "").toLowerCase()}-${createdAt}"
+                    it[parent_id] = "-"
                     it[comment] = discussions.comment
                     it[name] = discussions.name
                     it[title] = discussions.title
-                    it[created_at] = System.currentTimeMillis()
+                    it[created_at] = createdAt
                 }
                 true
             } catch (e: JdbcSQLIntegrityConstraintViolationException) {
