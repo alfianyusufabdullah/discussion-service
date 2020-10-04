@@ -12,7 +12,7 @@ fun Route.widget(databaseRepository: DatabaseRepository) {
     route("/discussion") {
 
         get {
-            val parentId = call.request.queryParameters["parentId"]?.toInt()
+            val parentId = call.request.queryParameters["parentId"]
 
             val result = databaseRepository.findAllDiscussionWith(parentId)
             if (result.isEmpty()) {
@@ -26,17 +26,27 @@ fun Route.widget(databaseRepository: DatabaseRepository) {
             val params = call.receiveParameters()
             val type = params["type"] ?: "undefined"
             val comment = params["comment"] ?: "undefined"
-            val parentId = params["parentId"]?.toInt() ?: 0
+            val parentId = params["parentId"] ?: "-"
             val name = params["name"] ?: "Alien"
             val title = params["title"] ?: "QnA"
 
             val result = when (type) {
                 "discussion" -> {
-                    val discussions = Discussions(comment = comment, name = name, title = title)
+                    val discussions = Discussions(
+                        comment = comment,
+                        name = name,
+                        title = title,
+                        createdAt = System.currentTimeMillis()
+                    )
                     databaseRepository.publishNewDiscussion(discussions)
                 }
                 "comment" -> {
-                    val discussions = Discussions(comment = comment, parentId = parentId, name = name)
+                    val discussions = Discussions(
+                        comment = comment,
+                        parentId = parentId,
+                        name = name,
+                        createdAt = System.currentTimeMillis()
+                    )
                     databaseRepository.publishNewComment(discussions)
                 }
                 else -> false
