@@ -1,8 +1,8 @@
 package alfianyusufabdullah.discussionservice.model
 
 data class Discussions(
-    val id: Int = 0,
-    val parentId: Int = 0,
+    val id: String = "-",
+    val parentId: String = "-",
     val title: String? = null,
     val name: String = "",
     val comment: String = "",
